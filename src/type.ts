@@ -1,5 +1,6 @@
 import { typeDefs } from '@app/store'
-import { GraphQLList, GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLID } from 'graphql'
+// import { GraphQLList, GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLID } from 'graphql'
+import { GraphQLID } from 'graphql'
 
 function simpleTypeToGraphQLType(name: string, schema: object) {
   const fields = Object.keys(schema).reduce((acc, field) => {
