@@ -7,10 +7,17 @@ module.exports = {
   moduleNameMapper: {
     '^@app(.*)$': '<rootDir>/src$1',
   },
+  collectCoverage: false,
   coverageDirectory: './coverage/',
-  collectCoverage: true,
   collectCoverageFrom: ['<rootDir>/src/*.ts'],
   automock: false,
   testEnvironment: 'jsdom',
   testURL: 'http://localhost/',
+  globals: {
+    'ts-jest': {
+      diagnostics: {
+        warnOnly: true,
+      },
+    },
+  },
 }

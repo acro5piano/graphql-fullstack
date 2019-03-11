@@ -1,30 +1,27 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import {
-  graphql,
-  GraphQLSchema,
-  GraphQLObjectType,
-  // GraphQLID,
-  // GraphQLList,
-  // GraphQLString,
-} from 'graphql'
+import { graphql, GraphQLSchema, GraphQLObjectType } from 'graphql'
 import { typeDefs } from '@app/store'
 
+// function compileToSchemaRecursive(queryType: any) {
+//   if ('typeName' in queryType) {
+//     return new GraphQLObjectType(type),
+//   }
+// }
+
 function mapQueryType(queryType: any) {
+  // console.log(typeDefs.get('Post'))
+  // console.log(typeDefs.get('User').fields)
   const fields = Object.keys(queryType).reduce((acc, cur) => {
     const type = typeDefs.get(queryType[cur].typeName)
+    const typeDef = queryType[cur]
+    const { resolve, args } = typeDef
     return {
       ...acc,
       [cur]: {
         type: new GraphQLObjectType(type),
-        resolve(_: any, { id }: any) {
-          return { id, name: 'kazuya' }
-        },
-        // args: {
-        //   id: {
-        //     type: GraphQLID,
-        //   },
-        // },
+        resolve,
+        args,
       },
     }
   }, {})
