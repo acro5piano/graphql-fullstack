@@ -9,15 +9,26 @@ Inspired by https://github.com/nuwave/lighthouse
 The syntax is as simple as possible.
 
 ```typescript
-import { type, types, run } from '@app/index'
+import { GraphQLInt, GraphQLString } from 'graphql'
+import { type, withResolver, withArgs, decorate, run } from '@app/index'
+
+const userResolver = withResolver((_root, { id }) => ({
+  id,
+  name: 'kazuya',
+}))
+const userArgs = withArgs({
+  id: {
+    type: GraphQLInt,
+  },
+})
 
 type('User', {
-  id: types.number,
-  name: types.string,
+  id: GraphQLInt,
+  name: GraphQLString,
 })
 
 type('Query', {
-  user: 'User',
+  user: decorate('User', userResolver, userArgs),
 })
 
 run()
