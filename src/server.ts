@@ -17,13 +17,13 @@ var schema = new GraphQLSchema({
   }),
 })
 
-export const app = express()
+export const server = express()
 
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
-app.use(require('cors')())
+server.use(bodyParser.urlencoded({ extended: true }))
+server.use(bodyParser.json())
+server.use(require('cors')())
 
-app.post('/graphql', (req, res) => {
+server.post('/graphql', (req, res) => {
   graphql(schema, req.body.query).then(result => {
     res.send(result)
   })

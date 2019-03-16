@@ -1,11 +1,11 @@
 // import { GraphQLInt, GraphQLString } from 'graphql'
 import * as request from 'supertest'
-import { app } from '@app/server'
+import { server } from '@app/server'
 import { gql } from '@app/__tests__/test-utils'
 
-describe('app', () => {
+describe('server', () => {
   it('can run query', async () => {
-    let res = await request(app)
+    let res = await request(server)
       .post('/graphql')
       .send({
         query: gql`
