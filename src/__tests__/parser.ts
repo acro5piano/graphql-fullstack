@@ -2,6 +2,11 @@ import gql from 'graphql-tag'
 import { buildSchema } from '@app/parser'
 
 const schemaStructure = gql`
+  type User {
+    id: Int!
+    name: String!
+  }
+
   type Query {
     hello: String
   }
