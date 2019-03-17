@@ -34,8 +34,8 @@ type Query {
 Caution: Currently only demo schema works
 
 ```sh
-npm run graphql-fullstack
-# => node_modules/.bin/graphql-fullstack
+node node_modules/.bin/graphql-fullstack
+# => running on http://localhost:5252
 ```
 
 Then you can request GraphQL:
