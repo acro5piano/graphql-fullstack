@@ -18,11 +18,11 @@ Or if you use Yarn:
 yarn add graphql-fullstack
 ```
 
-Caution: Currently only demo schema works
-
 # Usage
 
-The syntax is as simple as possible.
+First, write your schema:
+
+`schema.graphql`
 
 ```graphql
 type Query {
@@ -31,14 +31,14 @@ type Query {
 }
 ```
 
-Caution: Currently only demo schema works
+Then run GraphQL server:
 
 ```sh
-node node_modules/.bin/graphql-fullstack
+node node_modules/.bin/graphql-fullstack --schema schema.graphql
 # => running on http://localhost:5252
 ```
 
-Then you can request GraphQL:
+Now you can request GraphQL:
 
 ```sh
 curl -XPOST localhost:5252/graphql -d query='query Hello { id hello }'

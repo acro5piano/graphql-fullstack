@@ -17,14 +17,14 @@ interface Config {
   directives?: string
 }
 
+const defualtConfig: Config = {
+  basePath: process.cwd(),
+  resolvers: `${process.cwd()}/resolvers`,
+  directives: `${process.cwd()}/directives`,
+}
+
 export function setConfig(config: Config) {
-  if (!config.resolvers) {
-    config.resolvers = `${config.basePath}/resolvers`
-  }
-  if (!config.directives) {
-    config.directives = `${config.basePath}/directives`
-  }
-  _store.set('config', config)
+  _store.set('config', { ...defualtConfig, ...config })
 }
 
 export function getConfig(): Config {
