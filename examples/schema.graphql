@@ -1,4 +1,9 @@
+type User {
+  id: Int!
+  name: String!
+}
+
 type Query {
-  id: Int @resolver(path: "idResolver")
-  hello: String @resolver(path: "helloResolver")
+  hello: String @resolver(path: "hello")
+  user: User @resolver(path: "user")
 }

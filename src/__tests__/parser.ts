@@ -10,6 +10,11 @@ const schemaStructure = gql`
   type Query {
     hello: String
   }
+
+  extend type Query {
+    hello: String @resolver(path: "hello")
+    user: User @resolver(path: "user")
+  }
 `
 
 console.log(JSON.stringify(schemaStructure, undefined, 2))

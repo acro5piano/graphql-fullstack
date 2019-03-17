@@ -15,7 +15,7 @@ server.post('/graphql', (req, res) => {
   })
 })
 
-export async function run() {
+export async function runserver() {
   server.listen(5252, () => {
     console.log('running on http://localhost:5252')
   })

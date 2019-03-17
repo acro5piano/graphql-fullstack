@@ -33,12 +33,18 @@ interface GraphQLType {
 
 type GraphQLKind = 'Document' | 'ObjectTypeDefinition' | 'FieldDefinition'
 
+interface GraphQLField {
+  type: GraphQLType
+  directives: GraphQLDirective[]
+  name: GraphQLName
+}
+
 interface GraphQLTree {
   kind: GraphQLKind
   name: GraphQLName
   interfaces: GraphQLInterface[]
   directives: GraphQLDirective[]
-  fields: GraphQLTree[]
+  fields: GraphQLField[]
   type: GraphQLType
   arguments?: any[]
   definitions?: GraphQLTree[]
@@ -117,7 +123,7 @@ async function getDocumentType(definitions: GraphQLTree[]) {
   return new GraphQLSchema({ query, types } as any)
 }
 
-async function getObjectTypeDefinition(name: string, schemaFields: GraphQLTree[]) {
+async function getObjectTypeDefinition(name: string, schemaFields: GraphQLField[]) {
   let fields = {}
   for (const field of schemaFields) {
     fields = { ...fields, ...(await getFieldDefinitions(field)) }
@@ -128,12 +134,6 @@ async function getObjectTypeDefinition(name: string, schemaFields: GraphQLTree[]
   } as any)
   setCustomType(name, type)
   return type
-}
-
-interface GraphQLField {
-  type: GraphQLType
-  directives: GraphQLDirective[]
-  name: GraphQLName
 }
 
 async function getFieldDefinitions(field: GraphQLField) {
