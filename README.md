@@ -18,6 +18,8 @@ Or if you use Yarn:
 yarn add graphql-fullstack
 ```
 
+Caution: Currently only demo schema works
+
 # Usage
 
 The syntax is as simple as possible.
@@ -28,6 +30,15 @@ type Query {
   hello: String @resolver(path: "helloResolver")
 }
 ```
+
+Caution: Currently only demo schema works
+
+```sh
+npm run graphql-fullstack
+# => node_modules/.bin/graphql-fullstack
+```
+
+Then you can request GraphQL:
 
 ```sh
 curl -XPOST localhost:5252/graphql -d query='query Hello { id hello }'
