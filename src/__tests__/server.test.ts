@@ -9,6 +9,7 @@ import * as path from 'path'
 
 const schemaStructure = graphql`
   type Query {
+    id: Int @resolver(path: "idResolver")
     hello: String @resolver(path: "helloResolver")
   }
 `
@@ -29,6 +30,7 @@ describe('server', () => {
       .send({
         query: gql`
           query Hello {
+            id
             hello
           }
         `,
@@ -36,6 +38,7 @@ describe('server', () => {
       .expect(200)
     expect(res.body).toEqual({
       data: {
+        id: 1,
         hello: 'world',
       },
     })

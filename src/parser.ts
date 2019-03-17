@@ -1,4 +1,10 @@
-import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql'
+import {
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLNonNull,
+} from 'graphql'
 import { getConfig } from '@app/store'
 import * as path from 'path'
 
@@ -40,8 +46,13 @@ interface GraphQLTree {
 function getType(type: string) {
   switch (type) {
     case 'String':
-    case 'String!':
       return GraphQLString
+    case 'String!':
+      return new GraphQLNonNull(GraphQLString)
+    case 'Int':
+      return GraphQLInt
+    case 'Int!':
+      return new GraphQLNonNull(GraphQLInt)
   }
 
   throw new Error('cannot get type')
@@ -61,14 +72,17 @@ export async function buildSchema(
   }
 
   if (schemaStructure.kind === 'ObjectTypeDefinition') {
+    let fields = {}
+    for (const field of schemaStructure.fields) {
+      fields = { ...fields, ...(await buildSchema(field)) }
+    }
     return new GraphQLObjectType({
       name: schemaStructure.name.value,
-      fields: await buildSchema(schemaStructure.fields[0]),
+      fields,
     } as any)
   }
 
   if (schemaStructure.kind === 'FieldDefinition') {
-    console.log(schemaStructure.directives[0].arguments[0].value.value)
     const path = schemaStructure.directives[0].arguments[0].value.value
     const helloResolver = (await import(getResolverPath(path))).default
     return {

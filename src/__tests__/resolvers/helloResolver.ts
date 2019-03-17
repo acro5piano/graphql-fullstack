@@ -1,5 +1,1 @@
-const helloResolver = () => 'world'
-
-export default helloResolver
-
-// module.exports = helloResolver
+export default () => 'world'
