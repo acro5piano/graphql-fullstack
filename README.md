@@ -39,7 +39,7 @@ module.exports = () => 'world'
 Then run GraphQL server:
 
 ```sh
-node node_modules/.bin/graphql-fullstack serve --schema schema.graphql
+npx graphql-fullstack serve --schema schema.graphql
 # => running on http://localhost:5252
 ```
 
