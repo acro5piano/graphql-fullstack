@@ -104,47 +104,64 @@ function getResolver(directive?: GraphQLDirective) {
   return getDefault(require(getResolverPath(path)))
 }
 
+async function getDocumentType(definitions: GraphQLTree[]) {
+  const typeDefs = definitions.filter(def => !['Query', 'Mutation'].includes(def.name.value))
+  const types = await Promise.all(typeDefs.map(def => buildSchema(def)))
+
+  const queryDef = definitions.find(def => def.name.value === 'Query')
+  if (!queryDef) {
+    throw new Error('cannot find Query definition')
+  }
+  const query = await buildSchema(queryDef)
+
+  return new GraphQLSchema({ query, types } as any)
+}
+
+async function getObjectTypeDefinition(name: string, schemaFields: GraphQLTree[]) {
+  let fields = {}
+  for (const field of schemaFields) {
+    fields = { ...fields, ...(await getFieldDefinitions(field)) }
+  }
+  const type = new GraphQLObjectType({
+    name,
+    fields,
+  } as any)
+  setCustomType(name, type)
+  return type
+}
+
+interface GraphQLField {
+  type: GraphQLType
+  directives: GraphQLDirective[]
+  name: GraphQLName
+}
+
+async function getFieldDefinitions(field: GraphQLField) {
+  const resolve = getResolver(field.directives[0])
+  const type = getType(field.type)
+  return {
+    [field.name.value]: {
+      type,
+      resolve,
+    },
+  } as any
+}
+
 export async function buildSchema(
   schemaStructure: GraphQLTree,
 ): Promise<GraphQLSchema | GraphQLObjectType> {
   if (schemaStructure.kind === 'Document' && schemaStructure.definitions) {
-    const typeDefs = schemaStructure.definitions.filter(
-      def => !['Query', 'Mutation'].includes(def.name.value),
-    )
-    const types = await Promise.all(typeDefs.map(def => buildSchema(def)))
-
-    const queryDef = schemaStructure.definitions.find(def => def.name.value === 'Query')
-    if (!queryDef) {
-      throw new Error('cannot find Query definition')
-    }
-    const query = await buildSchema(queryDef)
-
-    return new GraphQLSchema({ query, types } as any)
+    return getDocumentType(schemaStructure.definitions)
   }
 
   if (schemaStructure.kind === 'ObjectTypeDefinition') {
-    let fields = {}
-    for (const field of schemaStructure.fields) {
-      fields = { ...fields, ...(await buildSchema(field)) }
-    }
-    const type = new GraphQLObjectType({
-      name: schemaStructure.name.value,
-      fields,
-    } as any)
-    setCustomType(schemaStructure.name.value, type)
-    return type
+    return getObjectTypeDefinition(schemaStructure.name.value, schemaStructure.fields)
   }
 
-  if (schemaStructure.kind === 'FieldDefinition') {
-    const resolve = getResolver(schemaStructure.directives[0])
-    const type = getType(schemaStructure.type)
-    return {
-      [schemaStructure.name.value]: {
-        type,
-        resolve,
-      },
-    } as any
-  }
+  // Does this needed...?
+  // if (schemaStructure.kind === 'FieldDefinition') {
+  //   return getFieldDefinitions(schemaStructure)
+  // }
 
   throw new Error('cannot parse')
 }
