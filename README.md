@@ -8,34 +8,15 @@ Inspired by https://github.com/nuwave/lighthouse
 
 The syntax is as simple as possible.
 
-```typescript
-import { GraphQLInt, GraphQLString } from 'graphql'
-import { type, withResolver, withArgs, decorate, run } from '@app/index'
-
-const userResolver = withResolver((_root, { id }) => ({
-  id,
-  name: 'kazuya',
-}))
-const userArgs = withArgs({
-  id: {
-    type: GraphQLInt,
-  },
-})
-
-type('User', {
-  id: GraphQLInt,
-  name: GraphQLString,
-})
-
-type('Query', {
-  user: decorate('User', userResolver, userArgs),
-})
-
-run()
+```graphql
+type Query {
+  id: Int @resolver(path: "idResolver")
+  hello: String @resolver(path: "helloResolver")
+}
 ```
 
 ```sh
-curl -XPOST localhost:5252/graphql -d query='query GetUser { user { id name } }'
+curl -XPOST localhost:5252/graphql -d query='query Hello { id hello }'
 ```
 
 returns
@@ -43,10 +24,8 @@ returns
 ```json
 {
   "data": {
-    "user": {
-      "id": 1,
-      "name": "kazuya"
-    }
+    "id": 1,
+    "hello": "world"
   }
 }
 ```
@@ -57,4 +36,4 @@ returns
   - [ ] Resolver
   - [ ] Input type
 - [ ] Middleware
-- [ ] Use MongoDB to store data [opinionated]
+- [ ] Use MongoDB to store relational data [opinionated]
