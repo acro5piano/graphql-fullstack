@@ -2,7 +2,16 @@ import typescript from 'rollup-plugin-typescript2'
 import alias from 'rollup-plugin-alias'
 import path from 'path'
 
-const external = ['path', 'graphql-tag', 'express', 'body-parser', 'graphql']
+const external = [
+  'path',
+  'graphql-tag',
+  'express',
+  'body-parser',
+  'graphql',
+  'fs',
+  'util',
+  'commander',
+]
 
 export default {
   input: './src/index.ts',

@@ -1,7 +1,8 @@
 import { readFile } from 'fs'
 import { promisify } from 'util'
+import { printSchema } from 'graphql'
 import graphql from 'graphql-tag'
-import { run } from '@app/server'
+import { runserver } from '@app/server'
 import { setSchema, setConfig } from '@app/store'
 import { buildSchema } from '@app/parser'
 import program from 'commander'
@@ -16,9 +17,14 @@ function requireFromCwd(path: string) {
 export async function main(argv: any) {
   program
     .version(version)
-    .option('-s, --schema [schema]', 'Graphql schema file')
     .option('-c, --config [config]', 'Config file')
-    .parse(argv)
+    .option('-s, --schema [schema]', 'Graphql schema file')
+
+  program.command('print')
+
+  program.command('serve')
+
+  program.parse(argv)
 
   const config = program.config ? requireFromCwd(program.config) : {}
   setConfig(config)
@@ -27,5 +33,16 @@ export async function main(argv: any) {
   const schema = await buildSchema(graphql(schemaString))
   setSchema(schema)
 
-  run()
+  const command = program.args[0]
+  switch (program.args[0]) {
+    case 'serve':
+      runserver()
+      break
+    case 'print':
+      console.log(printSchema(schema as any))
+      break
+    default:
+      console.log(`Error: Unknown command: ${command}`)
+      process.exit(1)
+  }
 }
