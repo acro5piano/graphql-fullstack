@@ -1,8 +1,22 @@
+[![npm version](https://badge.fury.io/js/graphql-fullstack.svg)](https://badge.fury.io/js/graphql-fullstack)
+
 # graphql-fullstack
 
 Experimental GraphQL-oriented web framework.
 
 Inspired by https://github.com/nuwave/lighthouse
+
+# Install
+
+```
+npm install --save graphql-fullstack
+```
+
+Or if you use Yarn:
+
+```
+yarn add graphql-fullstack
+```
 
 # Usage
 
