@@ -7,9 +7,14 @@ import graphql from 'graphql-tag'
 import { buildSchema } from '@app/parser'
 
 const schemaStructure = graphql`
+  type User {
+    id: Int!
+    name: String!
+  }
+
   type Query {
-    id: Int @resolver(path: "idResolver")
-    hello: String @resolver(path: "helloResolver")
+    hello: String @resolver(path: "hello")
+    user: User @resolver(path: "user")
   }
 `
 
@@ -25,13 +30,12 @@ describe('server', () => {
     const schema = await buildSchema(schemaStructure)
     setSchema(schema)
   })
-  it('can run query', async () => {
-    let res = await request(server)
+  it('can run hello query', async () => {
+    const res = await request(server)
       .post('/graphql')
       .send({
         query: gql`
           query Hello {
-            id
             hello
           }
         `,
@@ -39,8 +43,30 @@ describe('server', () => {
       .expect(200)
     expect(res.body).toEqual({
       data: {
-        id: 1,
         hello: 'world',
+      },
+    })
+  })
+  it('can run user query', async () => {
+    const res = await request(server)
+      .post('/graphql')
+      .send({
+        query: gql`
+          query GetUser {
+            user {
+              id
+              name
+            }
+          }
+        `,
+      })
+      .expect(200)
+    expect(res.body).toEqual({
+      data: {
+        user: {
+          id: 1,
+          name: 'Kazuya',
+        },
       },
     })
   })

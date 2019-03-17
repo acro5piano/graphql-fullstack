@@ -5,7 +5,7 @@ import {
   GraphQLInt,
   GraphQLNonNull,
 } from 'graphql'
-import { getConfig } from '@app/store'
+import { getConfig, setCustomType, getCustomType } from '@app/store'
 import path from 'path'
 
 interface GraphQLName {
@@ -26,8 +26,9 @@ interface GraphQLDirective {
 interface GraphQLInterface {}
 
 interface GraphQLType {
-  kind: 'NamedType'
-  name: GraphQLName
+  kind: 'NamedType' | 'NonNullType' | 'TypedName' | 'Name'
+  name?: string | GraphQLName
+  type?: GraphQLType
 }
 
 type GraphQLKind = 'Document' | 'ObjectTypeDefinition' | 'FieldDefinition'
@@ -43,19 +44,46 @@ interface GraphQLTree {
   definitions?: GraphQLTree[]
 }
 
-function getType(type: string) {
-  switch (type) {
-    case 'String':
-      return GraphQLString
-    case 'String!':
-      return new GraphQLNonNull(GraphQLString)
-    case 'Int':
-      return GraphQLInt
-    case 'Int!':
-      return new GraphQLNonNull(GraphQLInt)
+function getTypeName(type: GraphQLType): string | GraphQLName {
+  if (type.name) {
+    return type.name
+  }
+  if (!type.type || !type.type.name || typeof type.type.name === 'string') {
+    throw new Error(`type is wrong: ${type}`)
   }
 
-  throw new Error('cannot get type')
+  return type.type.name.value
+}
+
+function wrapNonNull(type: GraphQLType) {
+  if (type.kind === 'NonNullType') {
+    return (childType: any) => new GraphQLNonNull(childType)
+  }
+  return (childType: any) => childType
+}
+
+function getType(type: GraphQLType) {
+  const wrapperFn = wrapNonNull(type)
+  const typeName = getTypeName(type)
+
+  if (typeof typeName === 'string' || !typeName.value) {
+    switch (typeName) {
+      case 'String':
+        return wrapperFn(GraphQLString)
+      case 'Int':
+        return wrapperFn(GraphQLInt)
+    }
+    throw new Error(`cannot get type: ${typeName}`)
+  }
+
+  switch (typeName.value) {
+    case 'String':
+      return wrapperFn(GraphQLString)
+    case 'Int':
+      return wrapperFn(GraphQLInt)
+  }
+
+  return getCustomType(typeName.value)
 }
 
 function getResolverPath(resolver: string) {
@@ -67,63 +95,73 @@ function getDefault(obj: any) {
   return obj.default ? obj.default : obj
 }
 
+function getResolver(directive?: GraphQLDirective) {
+  if (!directive || !directive.arguments[0]) {
+    return undefined
+  }
+
+  const path = directive.arguments[0].value.value
+  return getDefault(require(getResolverPath(path)))
+}
+
+async function getDocumentType(definitions: GraphQLTree[]) {
+  const typeDefs = definitions.filter(def => !['Query', 'Mutation'].includes(def.name.value))
+  const types = await Promise.all(typeDefs.map(def => buildSchema(def)))
+
+  const queryDef = definitions.find(def => def.name.value === 'Query')
+  if (!queryDef) {
+    throw new Error('cannot find Query definition')
+  }
+  const query = await buildSchema(queryDef)
+
+  return new GraphQLSchema({ query, types } as any)
+}
+
+async function getObjectTypeDefinition(name: string, schemaFields: GraphQLTree[]) {
+  let fields = {}
+  for (const field of schemaFields) {
+    fields = { ...fields, ...(await getFieldDefinitions(field)) }
+  }
+  const type = new GraphQLObjectType({
+    name,
+    fields,
+  } as any)
+  setCustomType(name, type)
+  return type
+}
+
+interface GraphQLField {
+  type: GraphQLType
+  directives: GraphQLDirective[]
+  name: GraphQLName
+}
+
+async function getFieldDefinitions(field: GraphQLField) {
+  const resolve = getResolver(field.directives[0])
+  const type = getType(field.type)
+  return {
+    [field.name.value]: {
+      type,
+      resolve,
+    },
+  } as any
+}
+
 export async function buildSchema(
   schemaStructure: GraphQLTree,
 ): Promise<GraphQLSchema | GraphQLObjectType> {
   if (schemaStructure.kind === 'Document' && schemaStructure.definitions) {
-    const query = await buildSchema(schemaStructure.definitions[0])
-    return new GraphQLSchema({ query } as any)
+    return getDocumentType(schemaStructure.definitions)
   }
 
   if (schemaStructure.kind === 'ObjectTypeDefinition') {
-    let fields = {}
-    for (const field of schemaStructure.fields) {
-      fields = { ...fields, ...(await buildSchema(field)) }
-    }
-    return new GraphQLObjectType({
-      name: schemaStructure.name.value,
-      fields,
-    } as any)
+    return getObjectTypeDefinition(schemaStructure.name.value, schemaStructure.fields)
   }
 
-  if (schemaStructure.kind === 'FieldDefinition') {
-    const path = schemaStructure.directives[0].arguments[0].value.value
-    const helloResolver = getDefault(require(getResolverPath(path)))
-    return {
-      [schemaStructure.name.value]: {
-        type: getType(schemaStructure.type.name.value),
-        resolve: helloResolver,
-      },
-    } as any
-  }
+  // Does this needed...?
+  // if (schemaStructure.kind === 'FieldDefinition') {
+  //   return getFieldDefinitions(schemaStructure)
+  // }
 
   throw new Error('cannot parse')
 }
-
-// export const schema = new GraphQLSchema({
-//   query: new GraphQLObjectType({
-//     name: 'RootQueryType',
-//     fields: {
-//       hello: {
-//         type: GraphQLString,
-//         resolve: helloResolver,
-//       },
-//     },
-//   }),
-// })
-
-// const schemaStructure = gql`
-//   type User {
-//     id: ID!
-//     posts: [Post] @hasMany
-//   }
-//
-//   type Post {
-//     id: ID!
-//     title: String!
-//   }
-//
-//   type Query {
-//     user: User
-//   }
-// `

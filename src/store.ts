@@ -1,4 +1,7 @@
-export const _store = new Map<string, any>()
+import { GraphQLType } from 'graphql'
+
+const _store = new Map<string, any>()
+const customTypeStore = new Map<string, GraphQLType>()
 
 export function setSchema(schema: any) {
   _store.set('schema', schema)
@@ -30,4 +33,16 @@ export function setConfig(config: Config) {
 
 export function getConfig(): Config {
   return _store.get('config')
+}
+
+export function setCustomType(name: string, type: GraphQLType) {
+  customTypeStore.set(name, type)
+}
+
+export function getCustomType(name: string): GraphQLType {
+  const type = customTypeStore.get(name)
+  if (!type) {
+    throw new Error(`no such type: ${name}`)
+  }
+  return type
 }
