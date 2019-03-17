@@ -20,10 +20,10 @@ export async function main(argv: any) {
     .option('-c, --config [config]', 'Config file')
     .parse(argv)
 
-  const schemaString = await readFilePromise(program.schema, 'utf8')
   const config = program.config ? requireFromCwd(program.config) : {}
-
   setConfig(config)
+
+  const schemaString = await readFilePromise(program.schema, 'utf8')
   const schema = await buildSchema(graphql(schemaString))
   setSchema(schema)
 
