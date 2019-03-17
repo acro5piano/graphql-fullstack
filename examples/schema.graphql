@@ -1,0 +1,4 @@
+type Query {
+  id: Int @resolver(path: "idResolver")
+  hello: String @resolver(path: "helloResolver")
+}

@@ -1,1 +1,1 @@
-import '@app/cli'
+export { main } from '@app/cli'
