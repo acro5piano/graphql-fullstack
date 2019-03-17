@@ -15,7 +15,8 @@ const schemaStructure = graphql(schemaString)
 
 const config = {
   basePath: path.resolve(__dirname),
-  resolvers: path.resolve(__dirname, '__tests__', 'resolvers'),
+  // resolvers: path.resolve(__dirname, '../', 'src', '__tests__', 'resolvers'),
+  resolvers: path.resolve(__dirname, '../', 'examples', 'resolvers'),
 }
 
 async function main() {

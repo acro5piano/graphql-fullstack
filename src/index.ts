@@ -1,1 +1,1 @@
-import './cli'
+import '@app/cli'

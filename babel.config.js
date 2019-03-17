@@ -1,3 +1,6 @@
+/*
+ * Babel is only used in build.
+ */
 module.exports = {
   plugins: [
     [
