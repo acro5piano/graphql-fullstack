@@ -63,6 +63,10 @@ function getResolverPath(resolver: string) {
   return path.resolve(`${resolvers}/${resolver}`)
 }
 
+function getDefault(obj: any) {
+  return obj.default ? obj.default : obj
+}
+
 export async function buildSchema(
   schemaStructure: GraphQLTree,
 ): Promise<GraphQLSchema | GraphQLObjectType> {
@@ -84,7 +88,7 @@ export async function buildSchema(
 
   if (schemaStructure.kind === 'FieldDefinition') {
     const path = schemaStructure.directives[0].arguments[0].value.value
-    const helloResolver = (await import(getResolverPath(path))).default
+    const helloResolver = getDefault(require(getResolverPath(path)))
     return {
       [schemaStructure.name.value]: {
         type: getType(schemaStructure.type.name.value),

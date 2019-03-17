@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     /* Basic Options */
+    "allowJs": true,
     "target": "es2015",
-    "module": "commonjs",
+    "module": "esNext",
     "declaration": true,
     "sourceMap": true,
     "removeComments": true,
