@@ -20,15 +20,20 @@ yarn add graphql-fullstack
 
 # Usage
 
-First, write your schema:
+First, write your schema and resolver:
 
 `schema.graphql`
 
 ```graphql
 type Query {
-  id: Int @resolver(path: "idResolver")
-  hello: String @resolver(path: "helloResolver")
+  hello: String @resolver(path: "hello")
 }
+```
+
+`resolvers/hello.js`
+
+```js
+module.exports = () => 'world'
 ```
 
 Then run GraphQL server:
@@ -41,7 +46,7 @@ node node_modules/.bin/graphql-fullstack --schema schema.graphql
 Now you can request GraphQL:
 
 ```sh
-curl -XPOST localhost:5252/graphql -d query='query Hello { id hello }'
+curl -XPOST localhost:5252/graphql -d query='query Hello { hello }'
 ```
 
 returns
@@ -49,7 +54,6 @@ returns
 ```json
 {
   "data": {
-    "id": 1,
     "hello": "world"
   }
 }
