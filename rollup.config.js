@@ -1,4 +1,5 @@
 import typescript from 'rollup-plugin-typescript2'
+import babel from 'rollup-plugin-babel'
 
 export default {
   input: './src/index.ts',
@@ -6,9 +7,11 @@ export default {
     typescript({
       tslib: require('tslib'),
       declaration: true,
+      tsconfig: 'tsconfig.build.json',
     }),
+    babel(),
   ],
-  external: id => true,
+  external: id => false,
   output: [
     {
       file: 'dist/index.js',

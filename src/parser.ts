@@ -6,7 +6,7 @@ import {
   GraphQLNonNull,
 } from 'graphql'
 import { getConfig } from '@app/store'
-import * as path from 'path'
+import path from 'path'
 
 interface GraphQLName {
   kind: 'Name'
