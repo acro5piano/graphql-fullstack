@@ -1,10 +1,10 @@
+import { resolve } from 'path'
 import request from 'supertest'
 import { server } from '@app/server'
 import { setSchema, setConfig } from '@app/store'
 import { gql } from '@app/__tests__/test-utils'
 import graphql from 'graphql-tag'
 import { buildSchema } from '@app/parser'
-import * as path from 'path'
 
 const schemaStructure = graphql`
   type Query {
@@ -14,7 +14,9 @@ const schemaStructure = graphql`
 `
 
 const config = {
-  basePath: path.resolve(__dirname),
+  basePath: resolve(__dirname),
+  resolvers: resolve(__dirname, 'resolvers'),
+  directives: resolve(__dirname, 'directives'),
 }
 
 describe('server', () => {

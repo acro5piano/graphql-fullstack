@@ -24,7 +24,8 @@ const defualtConfig: Config = {
 }
 
 export function setConfig(config: Config) {
-  _store.set('config', { ...defualtConfig, ...config })
+  const mergedConfig = { ...defualtConfig, ...config }
+  _store.set('config', mergedConfig)
 }
 
 export function getConfig(): Config {
