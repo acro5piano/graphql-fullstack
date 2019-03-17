@@ -1,19 +1,25 @@
 // import { GraphQLInt, GraphQLString } from 'graphql'
 import * as request from 'supertest'
 import { server } from '@app/server'
-import { setSchema } from '@app/store'
+import { setSchema, setConfig } from '@app/store'
 import { gql } from '@app/__tests__/test-utils'
 import graphql from 'graphql-tag'
 import { buildSchema } from '@app/parser'
+import * as path from 'path'
 
 const schemaStructure = graphql`
   type Query {
-    hello: String @resolver(path: "./__tests__/resolver/helloResolver")
+    hello: String @resolver(path: "helloResolver")
   }
 `
 
+const config = {
+  basePath: path.resolve(__dirname),
+}
+
 describe('server', () => {
   beforeAll(async () => {
+    setConfig(config)
     const schema = await buildSchema(schemaStructure)
     setSchema(schema)
   })
