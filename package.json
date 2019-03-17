@@ -1,10 +1,13 @@
 {
   "name": "graphql-fullstack",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "./dist/index.js",
   "repository": "git@github.com:acro5piano/graphql-fullstack",
   "author": "gosho-kazuya <ketsume0211@gmail.com>",
   "license": "MIT",
+  "bin": {
+    "graphql-fullstack": "./bin/"
+  },
   "scripts": {
     "start": "nodemon",
     "dev": "nodemon",
