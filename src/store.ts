@@ -1,4 +1,3 @@
-// export const typeDefs = new Map<string, any>()
 export const _store = new Map<string, any>()
 
 export function setSchema(schema: any) {

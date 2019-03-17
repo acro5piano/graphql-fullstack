@@ -1,5 +1,4 @@
-// import { GraphQLInt, GraphQLString } from 'graphql'
-import * as request from 'supertest'
+import request from 'supertest'
 import { server } from '@app/server'
 import { setSchema, setConfig } from '@app/store'
 import { gql } from '@app/__tests__/test-utils'

@@ -1,7 +1,6 @@
-import * as express from 'express'
-import * as bodyParser from 'body-parser'
+import express from 'express'
+import bodyParser from 'body-parser'
 import { graphql } from 'graphql'
-// import { typeDefs } from '@app/store'
 import { getSchema } from '@app/store'
 
 export const server = express()
@@ -15,3 +14,9 @@ server.post('/graphql', (req, res) => {
     res.send(result)
   })
 })
+
+export async function run() {
+  server.listen(5252, () => {
+    console.log('running on http://localhost:5252')
+  })
+}
