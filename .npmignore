@@ -3,7 +3,7 @@ node_modules
 tsconfig.*
 
 src
-examples
+# examples
 coverage
 docs
 *.jpg
