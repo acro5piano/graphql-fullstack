@@ -94,7 +94,7 @@ export async function getDirective(directive: GraphQLDirective) {
   for (const directiveDir of directives) {
     for (const ext of exts) {
       if (await existsPromise(`${directiveDir}/${directive.name.value}${ext}`)) {
-        return getDefault(require(`${directiveDir}/${directive.name.value}`))
+        return getDefault(await import(`${directiveDir}/${directive.name.value}`))
       }
     }
   }

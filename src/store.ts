@@ -26,11 +26,16 @@ const defualtConfig: Config = {
   directives: [`${process.cwd()}/directives`],
 }
 
-const forcedDirective = `${__dirname}/directives`
+const forcedDirectives = [
+  `${__dirname}/directives`,
+  `${__dirname}/../dist`,
+  `${__dirname}/../node_modules/graphql-fullstack/dist`,
+  `${__dirname}/`,
+]
 
 export function setConfig(config: Config) {
   const mergedConfig = { ...defualtConfig, ...config }
-  mergedConfig.directives.push(forcedDirective)
+  mergedConfig.directives.push(...forcedDirectives)
   _store.set('config', mergedConfig)
 }
 

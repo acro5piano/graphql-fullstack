@@ -14,7 +14,7 @@ const external = [
 ]
 
 export default {
-  input: './src/index.ts',
+  input: ['./src/index.ts', './src/directives/field.ts'],
   plugins: [
     alias({
       resolve: ['.ts'],
@@ -29,14 +29,9 @@ export default {
   external,
   output: [
     {
-      file: 'dist/index.js',
+      dir: 'dist',
       format: 'cjs',
       name: 'graphql-fullstack',
-      sourcemap: true,
-    },
-    {
-      file: 'dist/index.es.js',
-      format: 'es',
       sourcemap: true,
     },
   ],

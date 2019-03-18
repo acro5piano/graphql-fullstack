@@ -4,7 +4,7 @@ import { server } from '@app/server'
 import { setSchema, setConfig } from '@app/store'
 import { gql } from '@app/__tests__/test-utils'
 import graphql from 'graphql-tag'
-import { buildSchema } from '@app/parser'
+import { buildSchema } from '@app/parser/parser'
 
 const schemaStructure = graphql`
   type User {

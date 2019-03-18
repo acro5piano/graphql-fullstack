@@ -1,5 +1,5 @@
 import gql from 'graphql-tag'
-import { buildSchema } from '@app/parser'
+import { buildSchema } from '@app/parser/parser'
 
 const schemaStructure = gql`
   type User {
