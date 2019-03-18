@@ -48,3 +48,7 @@ export async function main(argv: any) {
       process.exit(1)
   }
 }
+
+// if (process.argv[1].endsWith('cli.ts')) {
+//   main(process.argv)
+// }
