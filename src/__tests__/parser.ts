@@ -1,7 +1,7 @@
-import gql from 'graphql-tag'
-import { buildSchema } from '@app/parser/parser'
+import { gql } from '@app/__tests__/test-utils'
+import { buildSchemaFromString } from '@app/parser/parser'
 
-const schemaStructure = gql`
+const schema = gql`
   type User {
     id: Int!
     name: String!
@@ -17,6 +17,6 @@ const schemaStructure = gql`
   }
 `
 
-console.log(JSON.stringify(schemaStructure, undefined, 2))
+console.log(JSON.stringify(schema, undefined, 2))
 
-export const schema = buildSchema(schemaStructure)
+buildSchemaFromString(schema)
