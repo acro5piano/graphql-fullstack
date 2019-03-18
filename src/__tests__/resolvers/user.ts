@@ -1,8 +1,8 @@
-function userResolver() {
+function usersResolver() {
   return {
     id: 1,
     name: 'Kazuya',
   }
 }
 
-export default userResolver
+export default usersResolver

@@ -1,11 +1,11 @@
 import { readFile } from 'fs'
 import { promisify } from 'util'
 import { printSchema } from 'graphql'
-import graphql from 'graphql-tag'
 import { runserver } from '@app/server'
 import { setSchema, setConfig } from '@app/store'
-import { buildSchema } from '@app/parser/parser'
+import { buildSchemaFromString } from '@app/parser/parser'
 import program from 'commander'
+import { init } from '@app/database/mongodb'
 const { version } = require('../package.json')
 
 const readFilePromise = promisify(readFile)
@@ -30,12 +30,13 @@ export async function main(argv: any) {
   setConfig(config)
 
   const schemaString = await readFilePromise(program.schema, 'utf8')
-  const schema = await buildSchema(graphql(schemaString))
+  const schema = await buildSchemaFromString(schemaString)
   setSchema(schema)
 
   const command = program.args[0]
   switch (program.args[0]) {
     case 'serve':
+      await init()
       runserver()
       break
     case 'print':
@@ -46,3 +47,7 @@ export async function main(argv: any) {
       process.exit(1)
   }
 }
+
+// if (process.argv[1].endsWith('cli.ts')) {
+//   main(process.argv)
+// }

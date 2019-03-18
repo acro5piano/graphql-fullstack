@@ -4,6 +4,7 @@ export interface GraphQLName {
 }
 
 export interface Argument {
+  name: GraphQLName
   value: {
     value: string
   }
@@ -18,7 +19,7 @@ export interface GraphQLDirective {
 export interface GraphQLInterface {}
 
 export interface GraphQLType {
-  kind: 'NamedType' | 'NonNullType' | 'TypedName' | 'Name'
+  kind: 'NamedType' | 'NonNullType' | 'TypedName' | 'Name' | 'ListType'
   name?: string | GraphQLName
   type?: GraphQLType
 }

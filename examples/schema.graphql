@@ -1,9 +1,10 @@
 type User {
-  id: Int!
-  name: String!
+  id: String!
+  name: String
 }
 
 type Query {
   hello: String @field(resolver: "hello")
   user: User @field(resolver: "user")
+  users: [User] @all(type: User)
 }

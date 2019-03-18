@@ -1,11 +1,13 @@
 import { promisify } from 'util'
 import { exists } from 'fs'
+import graphql from 'graphql-tag'
 import {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
   GraphQLInt,
   GraphQLNonNull,
+  GraphQLList,
 } from 'graphql'
 import { setCustomType, getCustomType } from '@app/store'
 import {
@@ -31,15 +33,18 @@ function getTypeName(type: GraphQLType): string | GraphQLName {
   return type.type.name.value
 }
 
-function wrapNonNull(type: GraphQLType) {
+function getTypeWrapper(type: GraphQLType) {
   if (type.kind === 'NonNullType') {
     return (childType: any) => new GraphQLNonNull(childType)
+  }
+  if (type.kind === 'ListType') {
+    return (childType: any) => new GraphQLList(childType)
   }
   return (childType: any) => childType
 }
 
 function getType(type: GraphQLType) {
-  const wrapperFn = wrapNonNull(type)
+  const wrapperFn = getTypeWrapper(type)
   const typeName = getTypeName(type)
 
   if (typeof typeName === 'string' || !typeName.value) {
@@ -49,6 +54,12 @@ function getType(type: GraphQLType) {
       case 'Int':
         return wrapperFn(GraphQLInt)
     }
+
+    if (typeof typeName === 'string') {
+      return wrapperFn(getCustomType(typeName))
+    }
+
+    console.log(typeName)
     throw new Error(`cannot get type: ${typeName}`)
   }
 
@@ -105,7 +116,7 @@ async function applyFieldDirectives(field: GraphQLField) {
   let _field = field
   for (const directive of field.directives) {
     const directiveFn = await getDirective(directive)
-    _field = directiveFn(field, directive)
+    _field = await directiveFn(field, directive)
   }
   return _field
 }
@@ -121,7 +132,7 @@ async function getFieldDefinitions(field: GraphQLField) {
   } as any
 }
 
-export async function buildSchema(
+async function buildSchema(
   schemaStructure: GraphQLTree,
 ): Promise<GraphQLSchema | GraphQLObjectType> {
   if (schemaStructure.kind === 'Document' && schemaStructure.definitions) {
@@ -138,4 +149,8 @@ export async function buildSchema(
   // }
 
   throw new Error('cannot parse')
+}
+
+export function buildSchemaFromString(schema: string) {
+  return buildSchema(graphql(schema))
 }
