@@ -6,6 +6,7 @@ import { runserver } from '@app/server'
 import { setSchema, setConfig } from '@app/store'
 import { buildSchema } from '@app/parser/parser'
 import program from 'commander'
+import { init } from '@app/database/mongodb'
 const { version } = require('../package.json')
 
 const readFilePromise = promisify(readFile)
@@ -36,6 +37,7 @@ export async function main(argv: any) {
   const command = program.args[0]
   switch (program.args[0]) {
     case 'serve':
+      await init()
       runserver()
       break
     case 'print':
