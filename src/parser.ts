@@ -1,3 +1,5 @@
+import { promisify } from 'util'
+import { exists } from 'fs'
 import {
   GraphQLSchema,
   GraphQLObjectType,
@@ -5,50 +7,18 @@ import {
   GraphQLInt,
   GraphQLNonNull,
 } from 'graphql'
-import { getConfig, setCustomType, getCustomType } from '@app/store'
-import path from 'path'
+import { setCustomType, getCustomType } from '@app/store'
+import {
+  GraphQLName,
+  GraphQLDirective,
+  GraphQLType,
+  GraphQLField,
+  GraphQLTree,
+} from '@app/parser/interfaces'
+import { getDefault } from '@app/utils'
+import { getConfig } from '@app/store'
 
-interface GraphQLName {
-  kind: 'Name'
-  value: string
-}
-
-interface Argument {
-  value: {
-    value: string
-  }
-}
-
-interface GraphQLDirective {
-  arguments: Argument[]
-}
-
-interface GraphQLInterface {}
-
-interface GraphQLType {
-  kind: 'NamedType' | 'NonNullType' | 'TypedName' | 'Name'
-  name?: string | GraphQLName
-  type?: GraphQLType
-}
-
-type GraphQLKind = 'Document' | 'ObjectTypeDefinition' | 'FieldDefinition'
-
-interface GraphQLField {
-  type: GraphQLType
-  directives: GraphQLDirective[]
-  name: GraphQLName
-}
-
-interface GraphQLTree {
-  kind: GraphQLKind
-  name: GraphQLName
-  interfaces: GraphQLInterface[]
-  directives: GraphQLDirective[]
-  fields: GraphQLField[]
-  type: GraphQLType
-  arguments?: any[]
-  definitions?: GraphQLTree[]
-}
+const existsPromise = promisify(exists)
 
 function getTypeName(type: GraphQLType): string | GraphQLName {
   if (type.name) {
@@ -92,24 +62,6 @@ function getType(type: GraphQLType) {
   return getCustomType(typeName.value)
 }
 
-function getResolverPath(resolver: string) {
-  const { resolvers } = getConfig()
-  return path.resolve(`${resolvers}/${resolver}`)
-}
-
-function getDefault(obj: any) {
-  return obj.default ? obj.default : obj
-}
-
-function getResolver(directive?: GraphQLDirective) {
-  if (!directive || !directive.arguments[0]) {
-    return undefined
-  }
-
-  const path = directive.arguments[0].value.value
-  return getDefault(require(getResolverPath(path)))
-}
-
 async function getDocumentType(definitions: GraphQLTree[]) {
   const typeDefs = definitions.filter(def => !['Query', 'Mutation'].includes(def.name.value))
   const types = await Promise.all(typeDefs.map(def => buildSchema(def)))
@@ -136,13 +88,35 @@ async function getObjectTypeDefinition(name: string, schemaFields: GraphQLField[
   return type
 }
 
+export async function getDirective(directive: GraphQLDirective) {
+  const { directives } = getConfig()
+  const exts = ['.ts', '.js']
+  for (const directiveDir of directives) {
+    for (const ext of exts) {
+      if (await existsPromise(`${directiveDir}/${directive.name.value}${ext}`)) {
+        return getDefault(require(`${directiveDir}/${directive.name.value}`))
+      }
+    }
+  }
+  throw new Error('directive not found')
+}
+
+async function applyFieldDirectives(field: GraphQLField) {
+  let _field = field
+  for (const directive of field.directives) {
+    const directiveFn = await getDirective(directive)
+    _field = directiveFn(field, directive)
+  }
+  return _field
+}
+
 async function getFieldDefinitions(field: GraphQLField) {
-  const resolve = getResolver(field.directives[0])
+  let withResolverField: GraphQLField = await applyFieldDirectives(field)
   const type = getType(field.type)
   return {
-    [field.name.value]: {
+    [withResolverField.name.value]: {
       type,
-      resolve,
+      resolve: withResolverField.__resolver,
     },
   } as any
 }

@@ -13,15 +13,15 @@ const schemaStructure = graphql`
   }
 
   type Query {
-    hello: String @resolver(path: "hello")
-    user: User @resolver(path: "user")
+    hello: String @field(resolver: "hello")
+    user: User @field(resolver: "user")
   }
 `
 
 const config = {
   basePath: resolve(__dirname),
   resolvers: resolve(__dirname, 'resolvers'),
-  directives: resolve(__dirname, 'directives'),
+  directives: [resolve(__dirname, 'directives')],
 }
 
 describe('server', () => {
