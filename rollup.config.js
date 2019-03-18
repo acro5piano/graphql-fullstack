@@ -1,6 +1,7 @@
 import typescript from 'rollup-plugin-typescript2'
 import alias from 'rollup-plugin-alias'
 import path from 'path'
+import fs from 'fs'
 
 const external = [
   'path',
@@ -12,9 +13,10 @@ const external = [
   'util',
   'commander',
 ]
+const directiveFiles = fs.readdirSync('./src/directives').map(f => `./src/directives/${f}`)
 
 export default {
-  input: ['./src/index.ts', './src/directives/field.ts'],
+  input: ['./src/index.ts', ...directiveFiles],
   plugins: [
     alias({
       resolve: ['.ts'],
