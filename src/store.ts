@@ -16,18 +16,26 @@ export function getSchema() {
  */
 interface Config {
   basePath: string
-  resolvers?: string
-  directives?: string
+  resolvers: string
+  directives: string[]
 }
 
 const defualtConfig: Config = {
   basePath: process.cwd(),
   resolvers: `${process.cwd()}/resolvers`,
-  directives: `${process.cwd()}/directives`,
+  directives: [`${process.cwd()}/directives`],
 }
+
+const forcedDirectives = [
+  `${__dirname}/directives`,
+  `${__dirname}/../dist`,
+  `${__dirname}/../node_modules/graphql-fullstack/dist`,
+  `${__dirname}/`,
+]
 
 export function setConfig(config: Config) {
   const mergedConfig = { ...defualtConfig, ...config }
+  mergedConfig.directives.push(...forcedDirectives)
   _store.set('config', mergedConfig)
 }
 

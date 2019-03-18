@@ -4,6 +4,6 @@ type User {
 }
 
 type Query {
-  hello: String @resolver(path: "hello")
-  user: User @resolver(path: "user")
+  hello: String @field(resolver: "hello")
+  user: User @field(resolver: "user")
 }

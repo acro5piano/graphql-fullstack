@@ -26,7 +26,7 @@ First, write your schema and resolver:
 
 ```graphql
 type Query {
-  hello: String @resolver(path: "hello")
+  hello: String @field(resolver: "hello")
 }
 ```
 

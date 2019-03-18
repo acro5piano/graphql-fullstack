@@ -4,7 +4,7 @@ import { printSchema } from 'graphql'
 import graphql from 'graphql-tag'
 import { runserver } from '@app/server'
 import { setSchema, setConfig } from '@app/store'
-import { buildSchema } from '@app/parser'
+import { buildSchema } from '@app/parser/parser'
 import program from 'commander'
 const { version } = require('../package.json')
 
