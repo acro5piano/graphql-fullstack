@@ -1,11 +1,7 @@
-// import path from 'path'
-// import { getConfig } from '@app/store'
-// import { getDefault } from '@app/utils'
 import { GraphQLDirective, GraphQLField } from '@app/parser/interfaces'
 import { db } from '@app/database/mongodb'
 
 function mapId(record: any) {
-  console.log(record._id)
   return { ...record, id: String(record._id) }
 }
 
