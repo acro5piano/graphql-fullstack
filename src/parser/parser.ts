@@ -1,5 +1,6 @@
 import { promisify } from 'util'
 import { exists } from 'fs'
+import graphql from 'graphql-tag'
 import {
   GraphQLSchema,
   GraphQLObjectType,
@@ -131,7 +132,7 @@ async function getFieldDefinitions(field: GraphQLField) {
   } as any
 }
 
-export async function buildSchema(
+async function buildSchema(
   schemaStructure: GraphQLTree,
 ): Promise<GraphQLSchema | GraphQLObjectType> {
   if (schemaStructure.kind === 'Document' && schemaStructure.definitions) {
@@ -148,4 +149,8 @@ export async function buildSchema(
   // }
 
   throw new Error('cannot parse')
+}
+
+export function buildSchemaFromString(schema: string) {
+  return buildSchema(graphql(schema))
 }

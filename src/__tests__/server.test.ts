@@ -1,12 +1,10 @@
-import { resolve } from 'path'
 import request from 'supertest'
 import { server } from '@app/server'
 import { setSchema, setConfig } from '@app/store'
-import { gql } from '@app/__tests__/test-utils'
-import graphql from 'graphql-tag'
-import { buildSchema } from '@app/parser/parser'
+import { gql, testConfig } from '@app/__tests__/test-utils'
+import { buildSchemaFromString } from '@app/parser/parser'
 
-const schemaStructure = graphql`
+const schemaString = gql`
   type User {
     id: Int!
     name: String!
@@ -19,16 +17,10 @@ const schemaStructure = graphql`
   }
 `
 
-const config = {
-  basePath: resolve(__dirname),
-  resolvers: resolve(__dirname, 'resolvers'),
-  directives: [resolve(__dirname, 'directives')],
-}
-
 describe('server', () => {
   beforeAll(async () => {
-    setConfig(config)
-    const schema = await buildSchema(schemaStructure)
+    setConfig(testConfig)
+    const schema = await buildSchemaFromString(schemaString)
     setSchema(schema)
   })
 
