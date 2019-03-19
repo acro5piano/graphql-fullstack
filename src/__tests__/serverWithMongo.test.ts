@@ -13,8 +13,16 @@ const schemaString = gql`
     name: String
   }
 
+  input UserInput {
+    name: String!
+  }
+
   type Query {
     users: [User] @all(type: User)
+  }
+
+  type Mutation {
+    createUser(input: UserInput!): User @create(type: User, input: UserInput)
   }
 `
 
@@ -24,14 +32,44 @@ describe('server', () => {
     setConfig(testConfig)
     const schema = await buildSchemaFromString(schemaString)
     setSchema(schema)
+
+    await changeDBToRandomName()
   })
 
   afterAll(terminate)
 
-  it('can run users query', async () => {
-    await changeDBToRandomName()
-    await db.collection('users').insert({ name: 'Kazuya' })
+  it('can mutate', async () => {
+    const res = await request(server)
+      .post('/graphql')
+      .send({
+        query: gql`
+          mutation CreateUser($input: UserInput!) {
+            createUser(input: $input) {
+              id
+              name
+            }
+          }
+        `,
+        variables: {
+          input: {
+            name: 'Kazuya',
+          },
+        },
+      })
+      .expect(200)
 
+    const user = await db.collection('users').findOne({})
+    user.id = String(user._id)
+    delete user['_id']
+
+    expect(res.body).toEqual({
+      data: {
+        createUser: user,
+      },
+    })
+  })
+
+  it('can run users query', async () => {
     const res = await request(server)
       .post('/graphql')
       .send({
