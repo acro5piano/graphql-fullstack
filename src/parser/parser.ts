@@ -8,6 +8,7 @@ import {
   GraphQLInt,
   GraphQLNonNull,
   GraphQLList,
+  GraphQLInputObjectType,
 } from 'graphql'
 import { setCustomType, getCustomType } from '@app/store'
 import {
@@ -83,18 +84,26 @@ async function getDocumentType(definitions: GraphQLTree[]) {
   }
   const query = await buildSchema(queryDef)
 
-  return new GraphQLSchema({ query, types } as any)
+  const mutationDef = definitions.find(def => def.name.value === 'Mutation')
+  const mutation = mutationDef ? await buildSchema(mutationDef) : undefined
+
+  return new GraphQLSchema({ query, mutation, types } as any)
 }
 
-async function getObjectTypeDefinition(name: string, schemaFields: GraphQLField[]) {
+type ObjectTypeInitiater = 'object' | 'input'
+
+async function getObjectTypeDefinition(
+  name: string,
+  schemaFields: GraphQLField[],
+  initiater: ObjectTypeInitiater,
+) {
   let fields = {}
   for (const field of schemaFields) {
     fields = { ...fields, ...(await getFieldDefinitions(field)) }
   }
-  const type = new GraphQLObjectType({
-    name,
-    fields,
-  } as any)
+  const args = { name, fields }
+  const type =
+    initiater === 'input' ? new GraphQLInputObjectType(args) : new GraphQLObjectType(args)
   setCustomType(name, type)
   return type
 }
@@ -121,12 +130,33 @@ async function applyFieldDirectives(field: GraphQLField) {
   return _field
 }
 
+// function parseArgumentField(argument
+
 async function getFieldDefinitions(field: GraphQLField) {
-  let withResolverField: GraphQLField = await applyFieldDirectives(field)
   const type = getType(field.type)
+  if (field.kind === 'InputValueDefinition') {
+    return {
+      [field.name.value]: {
+        type,
+      },
+    }
+  }
+
+  const args = field.arguments.reduce(
+    (acc, argument) => ({
+      ...acc,
+      [argument.name.value]: {
+        type: getType(argument.type),
+      },
+    }),
+    {},
+  )
+
+  let withResolverField: GraphQLField = await applyFieldDirectives(field)
   return {
     [withResolverField.name.value]: {
       type,
+      args,
       resolve: withResolverField.__resolver,
     },
   } as any
@@ -134,14 +164,19 @@ async function getFieldDefinitions(field: GraphQLField) {
 
 async function buildSchema(
   schemaStructure: GraphQLTree,
-): Promise<GraphQLSchema | GraphQLObjectType> {
+): Promise<GraphQLSchema | GraphQLObjectType | GraphQLInputObjectType> {
   if (schemaStructure.kind === 'Document' && schemaStructure.definitions) {
     return getDocumentType(schemaStructure.definitions)
   }
 
   if (schemaStructure.kind === 'ObjectTypeDefinition') {
-    return getObjectTypeDefinition(schemaStructure.name.value, schemaStructure.fields)
+    return getObjectTypeDefinition(schemaStructure.name.value, schemaStructure.fields, 'object')
   }
+
+  if (schemaStructure.kind === 'InputObjectTypeDefinition') {
+    return getObjectTypeDefinition(schemaStructure.name.value, schemaStructure.fields, 'input')
+  }
+  console.log(schemaStructure)
 
   // Does this needed...?
   // if (schemaStructure.kind === 'FieldDefinition') {

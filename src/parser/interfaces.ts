@@ -3,8 +3,9 @@ export interface GraphQLName {
   value: string
 }
 
-export interface Argument {
+export interface GraphQLArgument {
   name: GraphQLName
+  type: GraphQLType
   value: {
     value: string
   }
@@ -13,7 +14,7 @@ export interface Argument {
 export interface GraphQLDirective {
   kind: 'Directive'
   name: GraphQLName
-  arguments: Argument[]
+  arguments: GraphQLArgument[]
 }
 
 export interface GraphQLInterface {}
@@ -24,11 +25,17 @@ export interface GraphQLType {
   type?: GraphQLType
 }
 
-export type GraphQLKind = 'Document' | 'ObjectTypeDefinition' | 'FieldDefinition'
+export type GraphQLKind =
+  | 'Document'
+  | 'ObjectTypeDefinition'
+  | 'FieldDefinition'
+  | 'InputObjectTypeDefinition'
 
 export interface GraphQLField {
+  kind: 'FieldDefinition' | 'InputValueDefinition'
   type: GraphQLType
   directives: GraphQLDirective[]
+  arguments: GraphQLArgument[]
   name: GraphQLName
   __resolver: Function
 }

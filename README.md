@@ -18,7 +18,7 @@ Or if you use Yarn:
 yarn add graphql-fullstack
 ```
 
-# Usage
+# Getting Started
 
 First, write your schema and resolver:
 
@@ -32,7 +32,7 @@ type Query {
 
 `resolvers/hello.js`
 
-```js
+```javascript
 module.exports = () => 'world'
 ```
 
@@ -59,10 +59,119 @@ returns
 }
 ```
 
+# Directives
+
+GraphQL-Fullstack will have various kind of directives.
+
+**@create**
+
+Create given model type from `input` variables.
+
+```graphql
+type User {
+  id: String!
+  name: String
+}
+
+input UserInput {
+  name: String
+}
+
+type Mutation {
+  createUser(input: UserInput!): User @create(type: User)
+}
+```
+
+**@all**
+
+Read all data of given model type.
+
+```graphql
+type User {
+  id: String!
+  name: String
+}
+
+type Query {
+  users: [User] @all(type: User)
+}
+```
+
+**@field**
+
+Manually resolve a field. `resolver` argument is the file name of the resolver. It defaults to `./resolvers`, but you can change it by config file (see below).
+
+```graphql
+type User {
+  id: String!
+  name: String
+}
+
+type Query {
+  user: User @field(resolver: 'UserResolver')
+}
+```
+
+# Config
+
+You can change the path of your project.
+
+Create `graphql.config.js` file and run `npx graphql-fullstack` with `-c` or `--config` option.
+
+```javascript
+const { resolve } = require('path')
+
+module.exports = {
+  basePath: resolve(__dirname),
+
+  // Resolver search paths.
+  resolvers: [
+    // By default, $PWD/resolvers is set, but you can set another resolvers path.
+    resolve(__dirname, 'path/to/your/resolvers'),
+  ],
+}
+```
+
+```
+npx graphql-fullstack -c graphql.config.js
+```
+
+# CRUD example
+
+```graphql
+type User {
+  id: String!
+  name: String
+}
+
+input UserInput {
+  name: String
+}
+
+type Query {
+  users: [User] @all(type: User)
+}
+
+type Mutation {
+  createUser(input: UserInput!): User @create(type: User)
+}
+```
+
 # Roadmap
 
-- [ ] Basic GraphQL features
-  - [ ] Resolver
-  - [ ] Input type
+- [x] Basic GraphQL features
+  - [x] Resolver
+  - [x] Input type
+- [x] Use MongoDB to store relational data [opinionated]
+  - [ ] create
+  - [ ] read
+    - all
+    - find
+    - where
+  - [ ] update
+  - [ ] delete
 - [ ] Middleware
-- [ ] Use MongoDB to store relational data [opinionated]
+
+```
+
+```
