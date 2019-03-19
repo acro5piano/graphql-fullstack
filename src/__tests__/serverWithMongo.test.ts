@@ -22,7 +22,7 @@ const schemaString = gql`
   }
 
   type Mutation {
-    createUser(input: UserInput!): User @create(type: User, input: UserInput)
+    createUser(input: UserInput!): User @create(type: User)
   }
 `
 
