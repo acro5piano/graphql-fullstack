@@ -13,7 +13,11 @@ const external = [
   'util',
   'commander',
 ]
-const directiveFiles = fs.readdirSync('./src/directives').map(f => `./src/directives/${f}`)
+
+const directiveFiles = fs
+  .readdirSync('./src/directives')
+  .filter(f => !f.startsWith('_'))
+  .map(f => `./src/directives/${f}`)
 
 export default {
   input: ['./src/index.ts', ...directiveFiles],

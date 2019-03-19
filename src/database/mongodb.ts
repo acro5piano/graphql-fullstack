@@ -1,4 +1,5 @@
 import { MongoClient, Db } from 'mongodb'
+import uuid from 'uuid'
 
 // Connection URL
 const url = 'mongodb://127.0.0.1:27017'
@@ -19,6 +20,13 @@ export async function init() {
   db = client.db(dbName)
 
   process.on('exit', terminate)
+}
+
+/*
+ * For testing.
+ */
+export async function changeDBToRandomName() {
+  db = client.db(uuid())
 }
 
 export function terminate() {

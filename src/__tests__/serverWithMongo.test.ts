@@ -4,7 +4,8 @@ import { setSchema, setConfig } from '@app/store'
 import { gql, testConfig } from '@app/__tests__/test-utils'
 import { buildSchemaFromString } from '@app/parser/parser'
 import { init, terminate } from '@app/database/mongodb'
-import { db } from '@app/database/mongodb'
+import { db, changeDBToRandomName } from '@app/database/mongodb'
+import { mapId } from '@app/database/utils'
 
 const schemaString = gql`
   type User {
@@ -28,6 +29,9 @@ describe('server', () => {
   afterAll(terminate)
 
   it('can run users query', async () => {
+    await changeDBToRandomName()
+    await db.collection('users').insert({ name: 'Kazuya' })
+
     const res = await request(server)
       .post('/graphql')
       .send({
@@ -45,7 +49,7 @@ describe('server', () => {
     const users = await db
       .collection('users')
       .find()
-      .map(x => ({ ...x, id: String(x._id), _id: undefined }))
+      .map(mapId)
       .toArray()
 
     expect(res.body).toEqual({
