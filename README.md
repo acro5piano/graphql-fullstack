@@ -126,7 +126,7 @@ module.exports = {
 
   // Resolver search paths.
   resolvers: [
-    // By default, $PWD/resolvers is set, but you can set another resolvers path.
+    // By default, $PWD/resolvers is set, but you can set other resolver paths.
     resolve(__dirname, 'path/to/your/resolvers'),
   ],
 }
