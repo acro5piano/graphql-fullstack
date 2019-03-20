@@ -1,5 +1,7 @@
 export function mapId(record: any) {
-  return { ...record, id: String(record._id), _id: undefined }
+  record.id = String(record._id)
+  delete record._id
+  return record
 }
 
 export function getCollectionNameFromTypeName(typeName: string) {
